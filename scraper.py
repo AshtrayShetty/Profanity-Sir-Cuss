@@ -2,15 +2,12 @@ from bs4 import BeautifulSoup
 import requests
 import csv
 
-with open('profanity.csv','w') as csv_file:
+try:
+    index=requests.get('https://www.azlyrics.com').text
+except:
+    print("Web page not found.")
+    exit()
 
-    writer=csv.writer(csv_file)
-    alphabets=[chr(i).lower() for i in range(65,91)]
-
-    for alpha in alphabets:
-        try:
-            home=requests.get(f'https://www.azlyrics.com/{alpha}.html')
-        except:
-            print("Web page not found.")
-
-        artists=BeautifulSoup(home,'lxml')
+links_parse=BeautifulSoup(index,'lxml')
+links=links_parse.find_all('a',{'class':'btn btn-menu'})
+alphabet_links=[link['href'] for link in links]
