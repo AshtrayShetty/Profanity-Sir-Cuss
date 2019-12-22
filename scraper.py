@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import csv
+import time
 
 try:
     index=requests.get('https://www.azlyrics.com').text
