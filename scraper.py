@@ -41,4 +41,16 @@ with open('profanity.csv','w') as csv_file:
                 exit()
             
             album_parse=BeautifulSoup(album_lists,'lxml')
+            songs_list=album_parse.find_all('div',{'class':'listalbum-item'})
+
+            try:
+                album_list=album_parse.find_all('div',{'class':'album'})
+                albums={}
+                for album in album_list:
+                    albums[album['id']]=[album.b.text[1:-1],album.text[album.text.index('(')+1:album.text.index(')')]]
+                    
+                #print(albums)
+            except:
+                pass
+
             time.sleep(5)
