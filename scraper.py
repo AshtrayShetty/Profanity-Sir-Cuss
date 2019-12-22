@@ -26,6 +26,21 @@ with open('profanity.csv','w') as csv_file:
 
         artists_parse=BeautifulSoup(artists_lists,'lxml')
         artists=artists_parse.find_all('div',{'class':'artist-col'})
-        #artists=artists[0].find_all('a')
-        #albums_list=[link for link in artists['href']]
-        #artists=[artist.text for artist in artists]
+        artists=artists[0].find_all('a')
+        artists_links=[link['href'] for link in artists]
+        artists=[artist.text for artist in artists]
+        #print(albums_list)
+        time.sleep(5)
+        
+        for album in artists_links:
+            try:
+                album_lists=requests.get(f'https://www.azlyrics.com/{album}').text
+            except:
+                print("Web page not found.")
+                exit()
+            
+            album_parse=BeautifulSoup(album_lists,'lxml')
+            albums=album_parse.find_all('script')[3].text
+            songlist=albums[albums.index('{'):albums.index(']')].split(',\n')
+            #print(songlist)
+            time.sleep(5)
