@@ -40,7 +40,4 @@ with open('profanity.csv','w') as csv_file:
                 exit()
             
             album_parse=BeautifulSoup(album_lists,'lxml')
-            albums=album_parse.find_all('script')[3].text
-            songlist=albums[albums.index('{'):albums.index(']')].split(',\n')
-            #print(songlist)
             time.sleep(5)
