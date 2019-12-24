@@ -49,10 +49,41 @@ with open('profanity.csv','w') as csv_file:
                 exit()
             
             album_parse=BeautifulSoup(album_lists,'lxml')
-            # songs_list=album_parse.find_all('div',{'class':'listalbum-item'})
-            albums={}
-            row=[artists_lists.index(artist)]
-            album_list=album_parse.find('div',{'id':'listAlbum'})
-            album_list=album_list.find_all('div',{'class':['album','listalbum-item']})
+            row=[artists_lists.index(artist),'','','','','','']
 
-            time.sleep(1.63,6.03)
+            try:
+                album_list=album_parse.find('div',{'id':'listAlbum'})
+                album_list=album_list.find_all('div',{'class':['album','listalbum-item']})
+            except:
+                album_list=album_parse.find_all('div',{'class':'listalbum-item'})
+
+            for album_song in album_list:
+                if album_song['class']=='album':
+                    if row[1]!=album_song.b.text[1:-1]:
+                        row[1]=album_song.b.text[1:-1] 
+                        row[2]=album_song.text[album_song.text.index('(')+1:album_song.text.index(')')]
+                
+                elif album_song['class']=='listalbum-item':
+                    song_link=album_song.a['href']
+                    row[3]=album_song.text
+                    time.sleep(random.uniform(0.43,7.21))
+
+                    try:
+                        lyrics_link=requests.get(f'https://www.azlyrics.com/{song_link}').text
+                    except:
+                        print("Web page not found.")
+                        exit()
+
+                    lyrics_parse=BeautifulSoup(lyrics_link,'lxml')
+                    word_count=lyrics_parse.find('div',{'class':None}).text.strip().replace('\n',' ').split(' ')
+                    row[5]=len(word_count)
+                    count=0
+
+                    for word in word_count:
+                        if word in bad_words:
+                            count+=1
+
+                    row[-1]=count
+                    
+
+            time.sleep(random.uniform(1.63,6.03))
