@@ -20,6 +20,10 @@ with open('profanity.csv','w') as csv_file:
     writer=csv.writer(csv_file)
     row=['artist','album','year','duartion_sec','words','cuss_words']
     writer.writerow(row)
+    cuss_words=open('bad_words.txt','r')
+    bad_words=cuss_words.readlines()
+    bad_words=[bad_word.strip() for bad_word in bad_words]
+    cuss_words.close()
 
     for alphabet in alphabet_links:
         try:
