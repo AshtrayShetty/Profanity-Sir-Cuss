@@ -80,7 +80,9 @@ with open('profanity.csv','w') as csv_file:
                     count=0
 
                     for word in word_count:
-                        if word in bad_words:
+                        if word=='':
+                            word_count.remove(word)
+                        elif word in bad_words:
                             count+=1
 
                     row[-1]=count
