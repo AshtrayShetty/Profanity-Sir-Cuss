@@ -77,22 +77,27 @@ def album_song_list(artist_link, album_song_names, song_links, writer):
         return
 
 def total_words(song_link, bad_words):
-    try:
-        time.sleep(random.uniform(1,6))
-        song_link_request=requests.get(f'https://www.azlyrics.com/{song_link}').text
-    except:
-        print("Too many requests made")
-        exit()
+    if not path.getsize('song_links.txt')==0:
+        try:
+            time.sleep(random.uniform(1,6))
+            song_link_request=requests.get(f'https://www.azlyrics.com/{song_link}').text
+        except:
+            print("Too many requests made")
+            exit()
 
-    song_link_parse=BeautifulSoup(song_link_request, 'lxml')
-    lyrics=song_link_parse.find('div', {'class' : None, 'id' : None}).text
-    lyrics=lyrics.split('\n')
-    lyrics=[lyric.strip() for lyric in lyrics]
-    lyrics=[lyrics.remove('') for lyric in lyrics if lyric=='']
+        song_link_parse=BeautifulSoup(song_link_request, 'lxml')
+        lyrics=song_link_parse.find('div', {'class' : None, 'id' : None}).text
+        lyrics=lyrics.split('\n')
+        lyrics=[lyric.strip() for lyric in lyrics]
+        lyrics=[lyrics.remove('') for lyric in lyrics if lyric=='']
 
-    count=0
-    for word in lyrics:
-        if word in bad_words:
-            count+=1
+        count=0
+        for word in lyrics:
+            if word in bad_words:
+                count+=1
 
-    return (len(lyrics), count)
+        return len(lyrics), count
+        
+    else:
+        remove('song_links.txt')
+        return
