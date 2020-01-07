@@ -8,14 +8,15 @@ import csv
 def alphabet_list_func(alphabet_links, artists_links, artists_names):
     if not alphabet_links is []:
         try:
-            time.sleep(random.uniform(1,6))
+            time.sleep(random.uniform(1,11))
             artists_lists=requests.get(f'https:{alphabet_links[0]}').text
             alphabet=alphabet_links[0]
         except:
             print("Too many requests made!")
-            artists_lists.close()
+            artists_links.close()
             artists_names.close()
             exit()
+            
         artists_parse=BeautifulSoup(artists_lists, 'lxml')
         artists_list=artists_parse.find('div', {'class':'artist-col'}).find_all('a')
 
@@ -28,23 +29,24 @@ def alphabet_list_func(alphabet_links, artists_links, artists_names):
         alphabet_list_func(alphabet_links, artists_links, artists_names)
 
     else:
-        artists_lists.close()
+        artists_links.close()
         artists_names.close()
         return
 
-def del_first_link():
-    artists_links=open('artists_links.txt','r')
-    links_lists=artists_links.readlines()[1:]
-    artists_links.close()
-    artists_links=open('artists_links.txt', 'w+')
-    artists_links.writelines(links_lists)
-    artists_links.close()
+def del_first_link(links_file):
+    links_file=open(f'{links_file}.txt','r')
+    links_lists=links_file.readlines()[1:]
+    links_file.close()
+
+    links_file=open(f'{links_file}.txt', 'w+')
+    links_file.writelines(links_lists)
+    links_file.close()
     return
 
 def album_song_list(artist_link, album_song_names, song_links, writer):
     if not path.getsize('artists_links.txt')==0:
         try:
-            time.sleep(random.uniform(1,6))
+            time.sleep(random.uniform(1,20))
             albums_list=requests.get(f'https://wwww.azlyrics.com/{artist_link}').text
             # album_song_names
         except:
@@ -56,6 +58,7 @@ def album_song_list(artist_link, album_song_names, song_links, writer):
         album_parse=BeautifulSoup(albums_list, 'lxml')
         alb_sng_list=album_parse.find_all('div', {'class': ['album', 'listalbum-item']})
         row=['album', 'year', 'song']
+
         for album_song in alb_sng_list:
             if album_song['class']=='album':
                 row[0]=album_song.b.text
@@ -72,3 +75,24 @@ def album_song_list(artist_link, album_song_names, song_links, writer):
         song_links.close()
         remove('artists_links.txt') 
         return
+
+def total_words(song_link, bad_words):
+    try:
+        time.sleep(random.uniform(1,6))
+        song_link_request=requests.get(f'https://www.azlyrics.com/{song_link}').text
+    except:
+        print("Too many requests made")
+        exit()
+
+    song_link_parse=BeautifulSoup(song_link_request, 'lxml')
+    lyrics=song_link_parse.find('div', {'class' : None, 'id' : None}).text
+    lyrics=lyrics.split('\n')
+    lyrics=[lyric.strip() for lyric in lyrics]
+    lyrics=[lyrics.remove('') for lyric in lyrics if lyric=='']
+
+    count=0
+    for word in lyrics:
+        if word in bad_words:
+            count+=1
+
+    return (len(lyrics), count)
