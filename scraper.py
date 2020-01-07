@@ -84,17 +84,24 @@ while path.exists('artists_links.txt'):
     album_song_list(artist_link, album_song_names, song_links, writer)
     del_first_link(artists_links)
 
-song_details={
-        'total_words':[],
-        'cuss_words':[]
-    }
-
 from functions import total_words
 while path.exists('song_links.txt'):
     file_open=open('song_links.txt', 'r')
     song_link=file_open.readline()[1:]
     file_open.close()
 
-    song_details['total_words'].append(total_words(song_link, bad_words)[0])
-    song_details['cuss_words'].append(total_words(song_link, bad_words)[1])
+    word_count=open('word_count.txt', 'a+', encoding='utf-8')
+    words, cuss_words=total_words(song_link, bad_words)
+    word_count.write(words+","+cuss_words+"\n")
+    word_count.close()
     del_first_link(song_links)
+
+import pandas as pd 
+df=pd.read_csv('album_song_names.csv', encoding='utf-8')
+word_count=open('word_count.txt', 'r', encoding='utf-8')
+count_list=word_count.readlines()
+count_list=[word.split(',') for word in count_list]
+words=[word[0] for word in count_list]
+cuss_words=[word[1] for word in count_list]
+df['total_words']=words
+df['cuss_words']=cuss_words
