@@ -5,13 +5,33 @@ import requests
 import time, random
 import csv
 
-def alphabet_list_func(alphabet_links, artists_links, artists_names):
+def alphabet_list_func(alphabet_links, artists_links, artists_names, proxy_ips, exclusion_list=[]):
     if not alphabet_links is []:
         try:
             time.sleep(random.uniform(1,11))
-            artists_lists=requests.get(f'https:{alphabet_links[0]}').text
+            with open('user-agents.txt' 'r') as user_agent_list:
+                user_agent=user_agent_list.readlines()[random.randint(0, len(user_agent_list.readlines())-1)]
+
+            proxy_ip = proxy_ips[random.randint(0, len(proxy_ips)-1)]
+
+            while proxy_ip in exclusion_list:
+                proxy_ip = proxy_ips[random.randint(0, len(proxy_ips)-1)]
+
+            headers={'user-agent' : user_agent}
+
+            proxies={
+                "http" : f"http://{proxy_ip}",
+                "https" : f"http://{proxy_ip}"
+            }
+
+            artists_lists=requests.get(f'https:{alphabet_links[0]}', headers=headers, proxies=proxies).text
             alphabet=alphabet_links[0]
-        except:
+
+        except ConnectionResetError:
+            exclusion_list.append(proxy_ip)
+            alphabet_list_func(alphabet_links, artists_links, artists_names, proxy_ips, exclusion_list)
+
+        finally:
             print("Too many requests made!")
             artists_links.close()
             artists_names.close()
@@ -26,7 +46,7 @@ def alphabet_list_func(alphabet_links, artists_links, artists_names):
                 artists_names.write(artists.text+'\n')
 
         alphabet_links.remove(alphabet_links[0])
-        alphabet_list_func(alphabet_links, artists_links, artists_names)
+        alphabet_list_func(alphabet_links, artists_links, artists_names, proxy_ips)
 
     else:
         artists_links.close()
@@ -43,13 +63,33 @@ def del_first_link(links_file):
     links_file.close()
     return
 
-def album_song_list(artist_link, album_song_names, song_links, writer):
+def album_song_list(artist_link, album_song_names, song_links, writer, proxy_ips, exclusion_list=[]):
     if not path.getsize('artists_links.txt')==0:
         try:
             time.sleep(random.uniform(1,20))
-            albums_list=requests.get(f'https://wwww.azlyrics.com/{artist_link}').text
+            with open('user-agents.txt' 'r') as user_agent_list:
+                user_agent=user_agent_list.readlines()[random.randint(0, len(user_agent_list.readlines())-1)]
+
+            proxy_ip = proxy_ips[random.randint(0, len(proxy_ips)-1)]
+
+            while proxy_ip in exclusion_list:
+                proxy_ip = proxy_ips[random.randint(0, len(proxy_ips)-1)]
+
+            headers={'user-agent' : user_agent}
+
+            proxies={
+                "http" : f"http://{proxy_ip}",
+                "https" : f"http://{proxy_ip}"
+            }
+
+            albums_list=requests.get(f'https://wwww.azlyrics.com/{artist_link}', headers=headers, proxies=proxies).text
             # album_song_names
-        except:
+
+        except ConnectionResetError:
+            exclusion_list.append(proxy_ip)
+            album_song_list(artist_link, album_song_names, song_links, writer, proxy_ips, exclusion_list)
+
+        finally:
             print("Too many requests")
             album_song_names.close()
             song_links.close()
@@ -76,12 +116,33 @@ def album_song_list(artist_link, album_song_names, song_links, writer):
         remove('artists_links.txt') 
         return
 
-def total_words(song_link, bad_words):
+def total_words(song_link, bad_words, proxy_ips, exclusion_list=[]):
     if not path.getsize('song_links.txt')==0:
         try:
             time.sleep(random.uniform(1,6))
-            song_link_request=requests.get(f'https://www.azlyrics.com/{song_link}').text
-        except:
+
+            with open('user-agents.txt' 'r') as user_agent_list:
+                user_agent=user_agent_list.readlines()[random.randint(0, len(user_agent_list.readlines())-1)]
+
+            proxy_ip = proxy_ips[random.randint(0, len(proxy_ips)-1)]
+
+            while proxy_ip in exclusion_list:
+                proxy_ip = proxy_ips[random.randint(0, len(proxy_ips)-1)]
+
+            headers={'user-agent' : user_agent}
+
+            proxies={
+                "http" : f"http://{proxy_ip}",
+                "https" : f"http://{proxy_ip}"
+            }
+
+            song_link_request=requests.get(f'https://www.azlyrics.com/{song_link}', headers=headers, proxies=proxies).text
+        
+        except ConnectionResetError:
+            exclusion_list.append(proxy_ip)
+            total_words(song_link, bad_words, proxy_ips, exclusion_list)
+
+        finally:
             print("Too many requests made")
             exit()
 

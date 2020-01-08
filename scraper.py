@@ -62,7 +62,7 @@ elif not path.exists('song_links.txt'):
     artists_names=open('artists_names.txt', 'w+', encoding='utf-8')
 
 from functions import alphabet_list_func
-alphabet_list_func(alphabet_links, artists_links, artists_names)
+alphabet_list_func(alphabet_links, artists_links, artists_names, proxy_ips)
 
 if path.exists('profanity.csv') and path.exists('song_links.txt') and path.exists('artists_links.txt'):
     album_song_names=open('profanity.csv', 'a+', encoding='utf-8')
@@ -82,7 +82,7 @@ while path.exists('artists_links.txt'):
     artist_link=file_open.readline()
     file_open.close()
 
-    album_song_list(artist_link, album_song_names, song_links, writer)
+    album_song_list(artist_link, album_song_names, song_links, writer, proxy_ips)
     del_first_link(artists_links)
 
 from functions import total_words
@@ -92,7 +92,7 @@ while path.exists('song_links.txt'):
     file_open.close()
 
     word_count=open('word_count.txt', 'a+', encoding='utf-8')
-    words, cuss_words=total_words(song_link, bad_words)
+    words, cuss_words=total_words(song_link, bad_words, proxy_ips)
     word_count.write(words+","+cuss_words+"\n")
     word_count.close()
     del_first_link(song_links)
