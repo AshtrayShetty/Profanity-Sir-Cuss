@@ -96,8 +96,8 @@ def total_words(song_link, bad_words):
             if word in bad_words:
                 count+=1
 
-        return len(lyrics), count
-        
+        return str(len(lyrics)), str(count)
+
     else:
         remove('song_links.txt')
         return

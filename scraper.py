@@ -1,29 +1,28 @@
 from bs4 import BeautifulSoup
 from os import path
-from os import chdir
 import requests
 import csv
 import time
 import random
 import numpy as np
+import pandas as pd
 
 try:
-    chdir('./Profanity')
     index=requests.get('https://www.azlyrics.com').text
+    proxy_req=requests.get('https://www.sslproxies.org/').text
 except:
     print("Web page not found.")
     exit()
 
 links_parse=BeautifulSoup(index, 'lxml')
+proxy_parse=BeautifulSoup(proxy_req, 'lxml')
+
 links=links_parse.find_all('a', {'class':'btn btn-menu'})
+table=proxy_parse.find('table', {'id':'proxylisttable'})
+
+proxy_ips=[row.find_all('td')[0].string+':'+row.find_all('td')[1].string for row in table.tbody.find_all('tr')]
 alphabet_links=[link['href'] for link in links]
 # print(alphabet_links)
-
-csv_file=open('profanity.csv', 'w')
-writer=csv.writer(csv_file)
-row=['artist', 'album', 'year', 'song', 'duartion_sec', 'words', 'cuss_words']
-writer.writerow(row)
-csv_file.close()
 
 cuss_words=open('bad_words.txt', 'r')
 bad_words=cuss_words.readlines()
@@ -48,8 +47,10 @@ if path.exists('artists_links.txt') and path.exists('artists_names.txt'):
     artists_links.close()
     artists_names.close()
 
-    lines_links=[line for line in lines_links if not line.startswith(alphabet)]
-    lines_names=[line for line in lines_names if not line.startswith(alphabet.upper())]
+    for i in range(0,len(lines_links)):
+        if lines_links.startswith(alphabet):
+           lines_links.remove(lines_links[i])
+           lines_names.remove(lines_names[i]) 
 
     artists_links=open('artists_links.txt', 'a+', encoding='utf-8')
     artists_names=open('artists_names.txt', 'a+', encoding='utf-8')
@@ -63,13 +64,13 @@ elif not path.exists('song_links.txt'):
 from functions import alphabet_list_func
 alphabet_list_func(alphabet_links, artists_links, artists_names)
 
-if path.exists('album_song_names.csv') and path.exists('song_links.txt') and path.exists('artists_links.txt'):
-    album_song_names=open('album_song_names.csv', 'a+', encoding='utf-8')
+if path.exists('profanity.csv') and path.exists('song_links.txt') and path.exists('artists_links.txt'):
+    album_song_names=open('profanity.csv', 'a+', encoding='utf-8')
     song_links=open('song_links.txt', 'a+', encoding='utf-8')
     writer=csv.writer(album_song_names)
 
-elif not path.exists('album_song_names.csv') or not path.exists('song_links.txt'):
-    album_song_names=open('album_song_names.csv', 'w+', encoding='utf-8')
+elif not path.exists('profanity.csv') or not path.exists('song_links.txt'):
+    album_song_names=open('profanity.csv', 'w+', encoding='utf-8')
     song_links=open('song_links.txt', 'w+', encoding='utf-8')
     writer=csv.writer(album_song_names)
     row=['album', 'year', 'song']
@@ -96,10 +97,11 @@ while path.exists('song_links.txt'):
     word_count.close()
     del_first_link(song_links)
 
-import pandas as pd 
-df=pd.read_csv('album_song_names.csv', encoding='utf-8')
+df=pd.read_csv('profanity.csv', encoding='utf-8')
 word_count=open('word_count.txt', 'r', encoding='utf-8')
 count_list=word_count.readlines()
+word_count.close()
+
 count_list=[word.split(',') for word in count_list]
 words=[word[0] for word in count_list]
 cuss_words=[word[1] for word in count_list]
