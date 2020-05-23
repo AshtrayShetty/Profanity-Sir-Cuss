@@ -15,6 +15,7 @@ for art in artist.split(' '):
 
 with open('bad_words.txt', 'r') as bad:
     badWords=[word.rstrip() for word in bad.readlines()]
+    badWords=[word.lower() for word in badWords]
 
 genres=[
     'christian', 'rock', 'country', 'hiphop', 
@@ -45,8 +46,9 @@ if artistString not in genres:
                     time.sleep(4)
                     lyrics=requests.get(f'https://api.lyrics.ovh/v1/{artist.lower()}/{song.text}').json()
 
+                    print(lyrics)
                     try:
-                        if 'Instrumental' in lyrics['lyrics']:
+                        if 'Instrumental' not in lyrics['lyrics']:
                             lyricsText=lyrics['lyrics'].split('\n')
                             lyricsText=[word for word in lyricsText if word!='']
                             profanityCounter=0
@@ -60,6 +62,7 @@ if artistString not in genres:
 
                             row=[artist, albumTemp, song.text, totalWords, profanityCounter]
                             pCsvWriter.writerow(row)
+                            print("Success")
 
                     except KeyError:
                         print("Key wasn't right")
@@ -69,6 +72,7 @@ else:
     songs=requests.get(f'https://www.lyricsondemand.com/{artistString}lyrics.html', timeout=5).text
     songsSoup=BeautifulSoup(songs, 'lxml')
     songsList=songsSoup.find_all('div', {'class': 'gntble'})[:4]
+    songsList.remove(songsList[2])
 
     os.chdir('./tests')
     with open(f'{artist}.csv', 'w') as pCsv:
@@ -82,10 +86,10 @@ else:
                 time.sleep(4)
                 try:
                     artistSongSpan=artistSong.find_all('span')
-                    print(artistSongSpan)
                     lyrics=requests.get(f'https://api.lyrics.ovh/v1/{artistSongSpan[0].text.lower()}/{artistSongSpan[1].text.lower()}').json()
                 
-                    if 'Instrumental' in lyrics['lyrics']:
+                    print(lyrics)
+                    if 'Instrumental' not in lyrics['lyrics']:
                         lyricsText=lyrics['lyrics'].split('\n')
                         lyricsText=[word for word in lyricsText if word!='']
                         profanityCounter=0
@@ -97,7 +101,7 @@ else:
                                 if word in badWords:
                                     profanityCounter+=1
 
-                        row=[artistSongSpan[0].text, artistSongSpan[1].text, totalWords, profanityCounter]
+                        row=[artistSongSpan[0].a.text, artistSongSpan[1].a.text, totalWords, profanityCounter]
                         pCsvWriter.writerow(row)
 
                 except KeyError:
