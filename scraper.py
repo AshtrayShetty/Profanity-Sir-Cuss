@@ -44,9 +44,8 @@ if artistString not in genres:
                     albumTemp=song.b.text
                 else:
                     time.sleep(4)
-                    lyrics=requests.get(f'https://api.lyrics.ovh/v1/{artist.lower()}/{song.text}').json()
+                    lyrics=requests.get(f'https://api.lyrics.ovh/v1/{artist.lower()}/{song.text}', timeout=5).json()
 
-                    print(lyrics)
                     try:
                         if 'Instrumental' not in lyrics['lyrics']:
                             lyricsText=lyrics['lyrics'].split('\n')
@@ -88,7 +87,6 @@ else:
                     artistSongSpan=artistSong.find_all('span')
                     lyrics=requests.get(f'https://api.lyrics.ovh/v1/{artistSongSpan[0].text.lower()}/{artistSongSpan[1].text.lower()}').json()
                 
-                    print(lyrics)
                     if 'Instrumental' not in lyrics['lyrics']:
                         lyricsText=lyrics['lyrics'].split('\n')
                         lyricsText=[word for word in lyricsText if word!='']
@@ -101,7 +99,7 @@ else:
                                 if word in badWords:
                                     profanityCounter+=1
 
-                        row=[artistSongSpan[0].a.text, artistSongSpan[1].a.text, totalWords, profanityCounter]
+                        row=[artistSongSpan[0].text, artistSongSpan[1].text, totalWords, profanityCounter]
                         pCsvWriter.writerow(row)
 
                 except KeyError:
