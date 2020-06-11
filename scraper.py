@@ -43,8 +43,12 @@ if artistString not in genres:
                 if song.find('b')!=None:
                     albumTemp=song.b.text
                 else:
+                    print(song.text)
+                    track=song.text
                     time.sleep(4)
-                    lyrics=requests.get(f'https://api.lyrics.ovh/v1/{artist.lower()}/{song.text}', timeout=5).json()
+                    if '/' in track:
+                        track=track.replace('/', '')
+                    lyrics=requests.get(f'https://api.lyrics.ovh/v1/{artist.lower()}/{track}', timeout=5).json()
 
                     try:
                         if 'Instrumental' not in lyrics['lyrics']:
