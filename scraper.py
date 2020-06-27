@@ -43,12 +43,15 @@ if artistString not in genres:
                 if song.find('b')!=None:
                     albumTemp=song.b.text
                 else:
-                    print(song.text)
+                    print("#whitegirlproblems")
                     track=song.text
                     time.sleep(4)
                     if '/' in track:
                         track=track.replace('/', '')
-                    lyrics=requests.get(f'https://api.lyrics.ovh/v1/{artist.lower()}/{track}', timeout=5).json()
+
+                    # {artist.lower()}
+                    # {track}
+                    lyrics=requests.get(f'https://api.lyrics.ovh/v1/hoodie allen/#whitegirlproblems', timeout=5).json()
 
                     try:
                         if 'Instrumental' not in lyrics['lyrics']:
@@ -67,7 +70,7 @@ if artistString not in genres:
                             pCsvWriter.writerow(row)
                             print("Success")
 
-                    except KeyError:
+                    except (KeyError, TimeoutError):
                         print("Key wasn't right")
                         continue
 
@@ -106,6 +109,6 @@ else:
                         row=[artistSongSpan[0].text, artistSongSpan[1].text, totalWords, profanityCounter]
                         pCsvWriter.writerow(row)
 
-                except KeyError:
+                except (KeyError):
                     print("Key wasn't right")
                     continue

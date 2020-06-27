@@ -5,6 +5,7 @@ import os
 import time
 import csv
 import random
+import json
 
 lastArtist=""
 lastSong=""
@@ -37,9 +38,9 @@ proxyList=[proxy for proxy in proxyListSoup.find('table', {'id': 'proxylisttable
 
 proxyListRequest=requests.get('https://api.proxyscrape.com/?request=getproxies&proxytype=http&timeout=10000&country=all&ssl=all&anonymity=all').text
 proxyListSoup=BeautifulSoup(proxyListRequest, 'lxml').p.text.split('\n')
-proxyList=[f'http://{proxy.strip()}' for proxy in proxyListSoup]
-proxyList=proxyList[:-1]
-proxyList+=proxyListSoup  
+proxyListSoup=[f'http://{proxy.strip()}' for proxy in proxyListSoup]
+proxyListSoup=proxyListSoup[:-1]
+proxyListSoup+=proxyList  
 
 
 with open('songs.csv', 'a') as pCsv:
@@ -60,23 +61,33 @@ with open('songs.csv', 'a') as pCsv:
                 artistsList.remove(artistsList[0])
             lastArtist=""
 
-        print(i)
+        print(f'\n{i}')
 
         for artist in artistsList:
             album=""
             artistParam=artist.find_all('td')[0].text.lower()
             artistTemp=artistParam
-            artistParam=artistParam.replace(" ", "")
 
             for letter in artistParam:
-                if letter not in [chr(j) for j in range(ord('a'), ord('z')+1)] and letter not in [j for j in range(10)]:
+                if letter not in [chr(j) for j in range(ord('a'), ord('z')+1)] and letter not in [str(j) for j in range(10)]:
                     if letter=='&':
                         artistParam=artistParam.replace(letter, "and")
-                    artistParam=artistParam.replace(letter, "")
+                    elif letter in ['à', 'á', 'â', 'ã',	'ä', 'å', 'æ']:
+                        artistParam=artistParam.replace(letter, "a")
+                    elif letter in ['è', 'é', 'ê', 'ë']:
+                        artistParam=artistParam.replace(letter, "e")
+                    elif letter in ['ì', 'í', 'î', 'ï']:
+                        artistParam=artistParam.replace(letter, "i")
+                    elif letter in ['ö', 'ò', 'ó', 'ô', 'õ']:
+                        artistParam=artistParam.replace(letter, "o")
+                    elif letter in ['ù', 'ú', 'û', 'ü']:
+                        artistParam=artistParam.replace(letter, "u")
+                    else:
+                        artistParam=artistParam.replace(letter, "")
 
-            print(artistParam)
+            print(f'\n{artistParam}')
 
-            proxy=random.choice(proxyList)
+            proxy=random.choice(proxyListSoup)
 
             if type(proxy)!=str:
                 proxy=proxy.find_all('td')
@@ -95,7 +106,7 @@ with open('songs.csv', 'a') as pCsv:
 
             try:
                 time.sleep(2)
-                songsRequest=requests.get(f'https://www.lyricsondemand.com/{artistParam[0]}/{artistParam}lyrics/', timeout=7, proxies=proxies, headers=headers).text
+                songsRequest=requests.get(f'https://www.lyricsondemand.com/{artistParam[0]}/{artistParam}lyrics/', timeout=10, proxies=proxies, headers=headers).text
                 songsRequestSoup=BeautifulSoup(songsRequest, 'lxml')
 
                 if songsRequestSoup.find('div', {'id': 'artdata'}).a.text!="404 Error Page":
@@ -109,7 +120,7 @@ with open('songs.csv', 'a') as pCsv:
                         lastSong=""
 
                     for song in songsList:
-                        if song.a.has_attr('onclick') or '(' in song.text:
+                        if song.a.has_attr('onclick') or '(' in song.text or '#' in song.text:
                             songsList.remove(song)
                         else:
                             if song.find('b')!=None:
@@ -122,7 +133,7 @@ with open('songs.csv', 'a') as pCsv:
                                 time.sleep(2)
 
                                 try:
-                                    lyrics=requests.get(f'https://api.lyrics.ovh/v1/{artistTemp}/{track}', timeout=5).json()
+                                    lyrics=requests.get(f'https://api.lyrics.ovh/v1/{artistTemp}/{track}', timeout=7).json()
                                     if 'Instrumental' not in lyrics['lyrics']:
                                         lyricsText=lyrics['lyrics'].split('\n')
                                         lyricsText=[word for word in lyricsText if word!='']
@@ -137,13 +148,24 @@ with open('songs.csv', 'a') as pCsv:
 
                                         row=[artistTemp, album, song.text, totalWords, profanityCounter]
                                         pCsvWriter.writerow(row)
-                                        print("Success")
 
                                 except KeyError:
-                                    print("Key wasn't right")
+                                    print("-", end="")
+                                    continue
+                                except UnicodeEncodeError:
+                                    print("\nUnicode error")
+                                    continue
+                                except requests.exceptions.Timeout:
+                                    print("\nConnection timed out")
                                     continue
 
-            except Exception as e:
-                print("Invalid Artist: ", e)
-                continue
+                                print("+", end="")
 
+            except Exception as e:
+                print("\nInvalid Artist: ", e)
+                proxyListRequest=requests.get('https://api.proxyscrape.com/?request=getproxies&proxytype=http&timeout=10000&country=all&ssl=all&anonymity=all').text
+                proxyListSoup=BeautifulSoup(proxyListRequest, 'lxml').p.text.split('\n')
+                proxyListSoup=[f'http://{proxy.strip()}' for proxy in proxyListSoup]
+                proxyListSoup=proxyListSoup[:-1]
+                proxyListSoup+=proxyList
+                continue
