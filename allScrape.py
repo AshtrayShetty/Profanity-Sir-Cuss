@@ -153,7 +153,7 @@ with open('songs.csv', 'a') as pCsv:
                                     print("-", end="")
                                     continue
                                 except UnicodeEncodeError:
-                                    print("\nUnicode error")
+                                    print(".", end="")
                                     continue
                                 except requests.exceptions.Timeout:
                                     print("\nConnection timed out")
