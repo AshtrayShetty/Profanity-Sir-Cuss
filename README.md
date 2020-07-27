@@ -2,7 +2,7 @@
 A small python script which uses proxy rotation to scrape all of music and artist data available on a website. The website in question is [lyricsondemand.com](https://www.lyricsondemand.com). It uses proxy rotation to obtain all the songs from a particular artist and then makes requests to [Lyrics.ovh](https://lyricsovh.docs.apiary.io/) to obtain the lyrics of a particular song.
 
 ## Motivation
-One day, I randomly had a thought about which genre in music has the most profane content (by that I mean the amount of verbal abuse that comes out of the artists mouth in songs). I did some research and could find no data about said topic. Hence, I took it as my duty :muscle: to make one (although it didn't come out the way I expected it to). 
+One day, I randomly had a thought about which genre in music has the most profane content (by that I mean the amount of verbal abuse that comes out of the artists mouth in songs). I did some research and could find no dataset from which one would come to any sort of conclusion about said topic. Hence, I took it as my duty :muscle: to make one (although it didn't come out the way I expected it to). 
 
 ## Requirements
 ```
