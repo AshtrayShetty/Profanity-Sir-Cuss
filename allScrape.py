@@ -32,6 +32,7 @@ if ord(lastArtist[0]) in range(ord('a'), ord('z')+1):
 else:
     alphabets=[chr(i) for i in range(ord('a'), ord('z')+1)]
 
+alphabets.append('0')
 proxyListRequest=requests.get('https://free-proxy-list.net/', timeout=5).text
 proxyListSoup=BeautifulSoup(proxyListRequest, 'lxml')
 proxyList=[proxy for proxy in proxyListSoup.find('table', {'id': 'proxylisttable'}).find('tbody').find_all('tr')]
